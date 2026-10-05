@@ -21,3 +21,6 @@ On first run, allow Microphone and Screen/System Audio permissions when prompted
 ## Signing
 
 The automated build is currently unsigned/not notarised. macOS may show a security warning on first launch. Apple Developer ID signing/notarisation can be added later without changing the recorder workflow.
+
+
+Build workflow enabled.
