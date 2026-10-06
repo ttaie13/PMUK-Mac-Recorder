@@ -1,4 +1,4 @@
-const {app,BrowserWindow,ipcMain,session,shell,dialog}=require('electron');
+const {app,BrowserWindow,ipcMain,session,shell,dialog,systemPreferences}=require('electron');
 const path=require('path'),fs=require('fs');
 const Store=require('electron-store'); const store=new Store();
 const API='https://pmukofficial.com/desktop_recorder_api.php';
@@ -27,3 +27,14 @@ ipcMain.handle('record:markFailed',(e,{id,error})=>{const m=JSON.parse(fs.readFi
 ipcMain.handle('record:openFolder',(e,id)=>{const m=JSON.parse(fs.readFileSync(metaPath(id)));shell.showItemInFolder(m.audio);return true});
 ipcMain.handle('record:saveAs',async(e,id)=>{const m=JSON.parse(fs.readFileSync(metaPath(id)));const ext=path.extname(m.audio)||'.webm';const safe=(m.lead?.full_name||'PMUK Recording').replace(/[<>:"/\\|?*]/g,'_');const out=await dialog.showSaveDialog(win,{title:'Save recording as',defaultPath:safe+' - '+new Date(m.created_at).toISOString().slice(0,19).replace(/[T:]/g,'-')+ext,filters:[{name:'Audio recording',extensions:[ext.slice(1)]}]});if(out.canceled||!out.filePath)return false;fs.copyFileSync(m.audio,out.filePath);return true});
 ipcMain.handle('record:path',()=>spool());
+
+ipcMain.handle('media:microphone',async()=>{
+  if(process.platform!=='darwin') return {granted:true,status:'granted'};
+  let status=systemPreferences.getMediaAccessStatus('microphone');
+  if(status==='not-determined'){
+    const granted=await systemPreferences.askForMediaAccess('microphone');
+    status=systemPreferences.getMediaAccessStatus('microphone');
+    return {granted,status};
+  }
+  return {granted:status==='granted',status};
+});
