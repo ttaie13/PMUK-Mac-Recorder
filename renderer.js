@@ -28,5 +28,5 @@ async function stats(){const list=await window.pmuk.list();const today=new Date(
 function fmt(s){s=Number(s)||0;return [Math.floor(s/3600),Math.floor(s%3600/60),s%60].map(x=>String(x).padStart(2,'0')).join(':')}
 $('recordingSearch').oninput=loadLibrary;$('openRecordingFolder').onclick=async()=>{const list=await window.pmuk.list();if(list[0])window.pmuk.openFolder(list[0].id)};
 document.querySelectorAll('.tab').forEach(b=>b.onclick=()=>{document.querySelectorAll('.tab').forEach(x=>x.classList.toggle('active',x===b));document.querySelectorAll('.pane').forEach(p=>p.classList.add('hidden'));$(b.dataset.tab).classList.remove('hidden')});
-function esc(v){return String(v??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot',"'":'&#39;'}[c]))}
+function esc(v){return String(v??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]))}
 init();
