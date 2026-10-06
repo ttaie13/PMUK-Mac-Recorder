@@ -1,6 +1,6 @@
 {
   "name": "pmuk-mac-recorder",
-  "version": "1.4.4",
+  "version": "1.4.5",
   "description": "PMUK macOS call recorder with local library and full PMUK call outcome and callback workflow",
   "main": "main.js",
   "author": "PMUK",
