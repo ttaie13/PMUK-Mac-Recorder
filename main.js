@@ -4,12 +4,13 @@ const Store=require('electron-store'); const store=new Store();
 const API='https://pmukofficial.com/desktop_recorder_api.php';
 let win,pendingDeepLink='';
 function deepLinkFrom(argv){return (argv||[]).find(x=>typeof x==='string'&&x.startsWith('pmuk-recorder://'))||''}
-function deliverDeepLink(url){if(!url)return;pendingDeepLink=url;if(win&&win.webContents&&!win.webContents.isLoading()){win.show();win.focus();win.webContents.send('deep-link',url);pendingDeepLink='';}}
-function create(){win=new BrowserWindow({width:1100,height:780,minWidth:900,minHeight:650,backgroundColor:'#f7f5fb',webPreferences:{preload:path.join(__dirname,'preload.js'),contextIsolation:true,nodeIntegration:false}});win.loadFile('index.html');win.webContents.on('did-finish-load',()=>{if(pendingDeepLink){win.webContents.send('deep-link',pendingDeepLink);pendingDeepLink='';}});}
+function hasLiveWindow(){return !!(win&&!win.isDestroyed()&&win.webContents&&!win.webContents.isDestroyed());}
+function deliverDeepLink(url){if(!url)return;pendingDeepLink=url;if(!app.isReady())return;if(!hasLiveWindow()){create();return;}win.show();win.focus();if(!win.webContents.isLoading()){win.webContents.send('deep-link',url);pendingDeepLink='';}}
+function create(){if(hasLiveWindow()){win.show();win.focus();return win;}win=new BrowserWindow({width:1100,height:780,minWidth:900,minHeight:650,backgroundColor:'#f7f5fb',webPreferences:{preload:path.join(__dirname,'preload.js'),contextIsolation:true,nodeIntegration:false}});win.on('closed',()=>{win=null;});win.loadFile('index.html');win.webContents.on('did-finish-load',()=>{if(pendingDeepLink&&hasLiveWindow()){win.webContents.send('deep-link',pendingDeepLink);pendingDeepLink='';}});return win;}
 const gotLock=app.requestSingleInstanceLock();if(!gotLock){app.quit()}else{app.on('second-instance',(e,argv)=>{deliverDeepLink(deepLinkFrom(argv));});}
 app.setAsDefaultProtocolClient('pmuk-recorder');
 app.on('open-url',(event,url)=>{event.preventDefault();deliverDeepLink(url);});
-app.whenReady().then(()=>{session.defaultSession.setPermissionRequestHandler((wc,p,cb)=>cb(['media','display-capture'].includes(p)));pendingDeepLink=deepLinkFrom(process.argv);create();});
+app.whenReady().then(()=>{session.defaultSession.setPermissionRequestHandler((wc,p,cb)=>cb(['media','display-capture'].includes(p)));pendingDeepLink=deepLinkFrom(process.argv);create();app.on('activate',()=>{if(!hasLiveWindow())create();});});
 app.on('window-all-closed',()=>{if(process.platform!=='darwin')app.quit()});
 ipcMain.handle('cfg:get',()=>({api:API,token:store.get('token',''),user:store.get('user',null)}));
 ipcMain.handle('auth:save',(e,v)=>{store.set('token',v.token);store.set('user',v.user);return true});
