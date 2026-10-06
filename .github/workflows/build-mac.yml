@@ -7,7 +7,7 @@ on:
       - main
 
 permissions:
-  contents: read
+  contents: write
 
 jobs:
   build-mac:
@@ -30,7 +30,7 @@ jobs:
         env:
           CSC_IDENTITY_AUTO_DISCOVERY: "false"
 
-      - name: Upload Mac installer
+      - name: Upload Mac installer artifact
         uses: actions/upload-artifact@v4
         with:
           name: PMUK-Recorder-Mac
@@ -38,3 +38,23 @@ jobs:
             dist/*.dmg
             dist/*.zip
           if-no-files-found: error
+
+      - name: Read app version
+        id: app_version
+        shell: bash
+        run: echo "version=$(node -p "require('./package.json').version")" >> "$GITHUB_OUTPUT"
+
+      - name: Publish GitHub Release
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: mac-v${{ steps.app_version.outputs.version }}-build-${{ github.run_number }}
+          name: PMUK Recorder for Mac v${{ steps.app_version.outputs.version }} (Build ${{ github.run_number }})
+          body: |
+            PMUK Recorder for Mac.
+
+            Download the DMG file below, open it, and install PMUK Recorder into Applications.
+          files: |
+            dist/*.dmg
+            dist/*.zip
+          fail_on_unmatched_files: true
+          make_latest: true
