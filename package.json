@@ -1,14 +1,15 @@
 {
-  "name": "pmuk-recorder",
-  "version": "1.3.0",
-  "description": "PMUK call recorder with permanent local library and CRM sync for Windows and macOS",
+  "name": "pmuk-mac-recorder",
+  "version": "1.4.3",
+  "description": "PMUK macOS call recorder with local library and full PMUK call outcome and callback workflow",
   "main": "main.js",
   "author": "PMUK",
   "license": "UNLICENSED",
   "scripts": {
     "start": "electron .",
-    "dist": "electron-builder --win nsis",
-    "dist:mac": "electron-builder --mac dmg zip"
+    "dist": "electron-builder --mac dmg zip",
+    "dist:mac:x64": "electron-builder --mac dmg zip --x64",
+    "dist:mac:arm64": "electron-builder --mac dmg zip --arm64"
   },
   "dependencies": {
     "electron-store": "^8.2.0"
@@ -28,30 +29,29 @@
       "index.html",
       "package.json"
     ],
-    "win": {
-      "target": [
-        "nsis"
-      ]
-    },
-    "nsis": {
-      "oneClick": false,
-      "allowToChangeInstallationDirectory": true,
-      "createDesktopShortcut": true,
-      "createStartMenuShortcut": true,
-      "shortcutName": "PMUK Recorder"
-    },
+    "protocols": [
+      {
+        "name": "PMUK Recorder",
+        "schemes": [
+          "pmuk-recorder"
+        ]
+      }
+    ],
     "mac": {
       "target": [
         "dmg",
         "zip"
       ],
       "category": "public.app-category.business",
-      "hardenedRuntime": false,
-      "gatekeeperAssess": false
+      "hardenedRuntime": true,
+      "gatekeeperAssess": false,
+      "extendInfo": {
+        "NSMicrophoneUsageDescription": "PMUK Recorder needs microphone access to record calls.",
+        "NSScreenCaptureUsageDescription": "PMUK Recorder needs screen and system audio access to record calls."
+      }
     },
     "dmg": {
-      "title": "PMUK Recorder ${version}",
-      "artifactName": "PMUK Recorder-${version}-${arch}.${ext}"
+      "artifactName": "PMUK-Recorder-${version}-${arch}.${ext}"
     }
   }
 }
