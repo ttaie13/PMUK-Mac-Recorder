@@ -1,6 +1,6 @@
 {
   "name": "pmuk-mac-recorder",
-  "version": "1.4.3",
+  "version": "1.4.4",
   "description": "PMUK macOS call recorder with local library and full PMUK call outcome and callback workflow",
   "main": "main.js",
   "author": "PMUK",
@@ -27,7 +27,8 @@
       "preload.js",
       "renderer.js",
       "index.html",
-      "package.json"
+      "package.json",
+      "entitlements.mac.plist"
     ],
     "protocols": [
       {
@@ -48,7 +49,9 @@
       "extendInfo": {
         "NSMicrophoneUsageDescription": "PMUK Recorder needs microphone access to record calls.",
         "NSScreenCaptureUsageDescription": "PMUK Recorder needs screen and system audio access to record calls."
-      }
+      },
+      "entitlements": "entitlements.mac.plist",
+      "entitlementsInherit": "entitlements.mac.plist"
     },
     "dmg": {
       "artifactName": "PMUK-Recorder-${version}-${arch}.${ext}"
